@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あみだや｜あみだくじメーカー</title>
+<meta name="description" content="参加者と結果を入れるだけであみだくじが作れるWebメーカー。結果画像のダウンロードと共有リンクに対応。">
+<meta name="theme-color" content="#0a0f1c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<!-- 🌙 保存済みテーマを描画前に適用する（ちらつき防止） -->
+<script>
+try {
+  var savedTheme = localStorage.getItem("amidaya-theme");
+  if (savedTheme === "light" || savedTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
+} catch (e) { /* 🌙 テーマ保存が使えない環境ではダークを既定にする */ }
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top">あみだや</a>
+    <span class="topbar-links">
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="テーマ切り替え">🌙</button>
+    </span>
+  </div>
+</nav>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <p class="eyebrow">AMIDAKUJI</p>
+    <h1>あみだや</h1>
+    <p class="tagline">あみだくじメーカー</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 📝 参加者入力 -->
+  <section class="card">
+    <h2>参加者（上段）</h2>
+    <div id="participantsList" class="edit-list"></div>
+    <button id="addParticipant" class="btn btn-sub" type="button">＋ 参加者を追加</button>
+    <div class="bulk-block">
+      <label for="participantsBulk">名簿の一括貼り付け（1行に1人・最大50人）</label>
+      <textarea id="participantsBulk" rows="4" placeholder="1行に1人ずつ貼り付けてください（空行は無視されます）"></textarea>
+      <button id="participantsBulkBtn" class="btn btn-sub" type="button">参加者を一括反映</button>
+    </div>
+  </section>
+
+  <!-- 🎁 結果入力 -->
+  <section class="card">
+    <h2>結果・景品（下段）</h2>
+    <div id="resultsList" class="edit-list"></div>
+    <button id="addResult" class="btn btn-sub" type="button">＋ 結果を追加</button>
+    <div class="bulk-block">
+      <label for="resultsBulk">結果の一括貼り付け（1行に1件・最大50件）</label>
+      <textarea id="resultsBulk" rows="4" placeholder="1行に1件ずつ貼り付けてください（空行は無視されます）"></textarea>
+      <button id="resultsBulkBtn" class="btn btn-sub" type="button">結果を一括反映</button>
+    </div>
+    <p class="hint">参加者と結果は同じ数にしてください（行を追加・削除すると自動でそろいます）。入力内容はこのブラウザに自動保存されます。</p>
+  </section>
+
+  <!-- 🎛️ 操作ボタン -->
+  <section class="card actions-card">
+    <div class="actions">
+      <button id="generateBtn" class="btn btn-primary" type="button">あみだ生成</button>
+      <button id="startBtn" class="btn btn-accent" type="button" disabled>スタート</button>
+    </div>
+    <div class="actions">
+      <button id="downloadBtn" class="btn btn-sub" type="button" disabled>結果を画像で保存</button>
+      <button id="printBtn" class="btn btn-sub" type="button" disabled>結果を印刷</button>
+      <button id="shareBtn" class="btn btn-sub" type="button">共有リンクをコピー</button>
+      <button id="resetBtn" class="btn btn-sub" type="button">リストをリセット</button>
+    </div>
+    <p id="shareMsg" class="share-msg" aria-live="polite"></p>
+  </section>
+
+  <!-- 🎨 あみだ表示 -->
+  <section class="card">
+    <div class="canvas-wrap">
+      <canvas id="ladderCanvas" width="720" height="600"></canvas>
+    </div>
+    <p id="statusMsg" class="status-msg" aria-live="polite">参加者と結果を入力して「あみだ生成」を押してください。</p>
+  </section>
+
+  <!-- 📋 結果表示 -->
+  <section class="card" id="resultCard" hidden>
+    <h2>結果</h2>
+    <table class="result-table">
+      <thead><tr><th>参加者</th><th></th><th>結果</th></tr></thead>
+      <tbody id="resultTableBody"></tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="site-footer wrap">
+  <p>あみだや — 入力内容はブラウザ内でのみ処理されます</p>
+</footer>
+
+<script src="app.js"></script>
+<!-- 📦 Service Worker を登録する -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
